@@ -143,6 +143,6 @@ export function renderForm(app, resource = null) {
     create(data);
     showToast('Recurso guardado');
     form.reset();
-    window.location.hash = '#/';
+    window.location.hash = '#/recursos';
   });
 }

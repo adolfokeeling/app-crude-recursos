@@ -9,7 +9,7 @@ export function renderHome(app) {
       <section class="hero">
         <h1>Tu biblioteca de recursos para aprender a programar</h1>
         <p class="hero-subtitle">Guarda, organiza y accede a tus recursos favoritos en un solo lugar.</p>
-        <a href="#/nuevo" class="btn btn-primary">Empezar</a>
+        <a href="#/recursos" class="btn btn-primary">Empezar</a>
       </section>
 
       <section class="cards-grid">
