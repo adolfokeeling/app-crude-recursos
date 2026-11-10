@@ -1,25 +1,30 @@
 import { TIPOS, TEMAS, NIVELES } from '../data/options.js';
-import { create } from '../services/storage.js';
+import { create, update } from '../services/storage.js';
 import { showToast } from '../components/toast.js';
 
-// Renderiza el formulario de creación de recursos
-export function renderForm(app, resource = null) {
-  // El segundo parámetro resource queda preparado para futura edición
+// Renderiza el formulario de creación o edición de recursos
+export function renderForm(app, recurso = null) {
+  const isEdit = Boolean(recurso);
+  const title = isEdit ? 'Editar recurso' : 'Nuevo recurso';
+  const submitText = isEdit ? 'Actualizar' : 'Guardar';
+  const selectedNivel = recurso?.nivel ?? 'basico';
+  const titleValue = recurso?.titulo ? String(recurso.titulo).replace(/"/g, '&quot;') : '';
+  const urlValue = recurso?.url ? String(recurso.url).replace(/"/g, '&quot;') : '';
 
   app.innerHTML = `
     <div class="container form-container">
-      <h1 class="form-title">Nuevo recurso</h1>
+      <h1 class="form-title">${title}</h1>
       <div class="card">
         <form id="resource-form" novalidate>
           <div class="form-group">
             <label for="titulo" class="form-label">Título</label>
-            <input type="text" id="titulo" name="titulo" class="input" placeholder="Título del recurso" />
+            <input type="text" id="titulo" name="titulo" class="input" placeholder="Título del recurso" value="${titleValue}" />
             <span class="form-error" id="error-titulo"></span>
           </div>
 
           <div class="form-group">
             <label for="url" class="form-label">URL</label>
-            <input type="url" id="url" name="url" class="input" placeholder="https://ejemplo.com" />
+            <input type="url" id="url" name="url" class="input" placeholder="https://ejemplo.com" value="${urlValue}" />
             <span class="form-error" id="error-url"></span>
           </div>
 
@@ -27,7 +32,7 @@ export function renderForm(app, resource = null) {
             <label for="tipo" class="form-label">Tipo</label>
             <select id="tipo" name="tipo" class="select">
               <option value="">Selecciona...</option>
-              ${TIPOS.map((item) => `<option value="${item.value}">${item.label}</option>`).join('')}
+              ${TIPOS.map((item) => `<option value="${item.value}" ${recurso?.tipo === item.value ? 'selected' : ''}>${item.label}</option>`).join('')}
             </select>
             <span class="form-error" id="error-tipo"></span>
           </div>
@@ -36,7 +41,7 @@ export function renderForm(app, resource = null) {
             <label for="tema" class="form-label">Tema</label>
             <select id="tema" name="tema" class="select">
               <option value="">Selecciona...</option>
-              ${TEMAS.map((item) => `<option value="${item.value}">${item.label}</option>`).join('')}
+              ${TEMAS.map((item) => `<option value="${item.value}" ${recurso?.tema === item.value ? 'selected' : ''}>${item.label}</option>`).join('')}
             </select>
             <span class="form-error" id="error-tema"></span>
           </div>
@@ -47,7 +52,7 @@ export function renderForm(app, resource = null) {
               ${NIVELES.map(
                 (item) => `
                 <label class="radio-label">
-                  <input type="radio" name="nivel" value="${item.value}" ${item.value === 'basico' ? 'checked' : ''} />
+                  <input type="radio" name="nivel" value="${item.value}" ${item.value === selectedNivel ? 'checked' : ''} />
                   ${item.label}
                 </label>
               `
@@ -57,14 +62,14 @@ export function renderForm(app, resource = null) {
 
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" name="favorito" value="true" />
+              <input type="checkbox" name="favorito" value="true" ${recurso?.favorito ? 'checked' : ''} />
               Favorito
             </label>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <a href="#/" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">${submitText}</button>
+            <a href="#/recursos" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>
@@ -140,8 +145,14 @@ export function renderForm(app, resource = null) {
       return;
     }
 
-    create(data);
-    showToast('Recurso guardado');
+    if (recurso) {
+      update(recurso.id, data);
+      showToast('Recurso actualizado');
+    } else {
+      create(data);
+      showToast('Recurso guardado');
+    }
+
     form.reset();
     window.location.hash = '#/recursos';
   });

@@ -12,6 +12,13 @@ export function getAll() {
   }
 }
 
+// Obtiene un recurso por su ID
+export function getById(id) {
+  const items = getAll();
+  const resource = items.find((item) => item.id === id);
+  return resource ?? null;
+}
+
 // Crea y almacena un nuevo recurso asignándole un id y fecha de creación
 export function create(data) {
   const items = getAll();
@@ -23,6 +30,27 @@ export function create(data) {
   items.push(newResource);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   return newResource;
+}
+
+// Actualiza un recurso existente conservando su ID y fecha de creación
+export function update(id, data) {
+  const items = getAll();
+  const index = items.findIndex((item) => item.id === id);
+  if (index === -1) {
+    return null;
+  }
+
+  const currentResource = items[index];
+  const updatedResource = {
+    ...currentResource,
+    ...data,
+    id: currentResource.id,
+    fechaCreacion: currentResource.fechaCreacion,
+  };
+
+  items[index] = updatedResource;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  return updatedResource;
 }
 
 // Calcula estadísticas sobre el total, favoritos y temas únicos
